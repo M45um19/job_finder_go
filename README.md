@@ -24,17 +24,26 @@ Environment Management: joho/godotenv
 
 Project Structure:
 
+```text
 jobstream-api/
-├── cmd/api/            # Entry point
+├── cmd/
+│   └── api/                # Application entry point (main.go)
 ├── internal/
-│   ├── handlers/       # HTTP Request Handlers
-│   ├── services/       # Business Logic Layer
-│   ├── repository/     # Database Interaction (SQL)
-│   ├── models/         # DB Entities & Structs
-│   ├── middleware/     # Auth & Role Guards
-│   └── router/         # Chi Route Definitions
-├── migrations/         # SQL Schema files
-└── pkg/                # Helper packages (Logger etc.)
+│   ├── app/                # Application wire-up (Dependency Injection)
+│   ├── config/             # Environment & Configuration loading
+│   ├── database/           # DB Connection (pgxpool) setup
+│   ├── handlers/           # HTTP Request/Response handling
+│   ├── services/           # Business Logic layer
+│   ├── repository/         # Database interaction (SQL queries)
+│   ├── models/             # Data Entities & Structs
+│   ├── middleware/         # Auth, Logging & Role Guards
+│   └── router/             # Chi Route definitions
+├── migrations/             # SQL schema migrations
+├── pkg/                    # Shared helper packages (Logger, etc.)
+├── .env.example            # Example environment variables
+├── go.mod                  # Go module definition
+└── go.sum                  # Dependency checksums
+``` 
 
 Database Design: 
 The system is built on a relational PostgreSQL schema designed for integrity and performance.
@@ -44,25 +53,31 @@ Applications: Links Seekers to Jobs with a unique constraint to prevent duplicat
 
 API Endpoints:
 
-Authentication (Public):
+### Authentication (Public)
 
-Method | Endpoint | Description
-POST | /api/v1/auth/register | Create a new account (Seeker/Employer)
-POST | /api/v1/auth/login | Login and receive a JWT Token
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register` | Create a new account (Seeker/Employer) |
+| `POST` | `/api/v1/auth/login` | Login and receive a JWT Token |
 
-Job Listings (Public & Protected)
+<br/>
 
-Method | Endpoint | Description | Access
-GET | /api/v1/jobs | List all jobs (supports filters) | Public
-GET | /api/v1/jobs/{id} | Get specific job details | Public
-POST | /api/v1/jobs | Post a new job | Employer
-PUT | /api/v1/jobs/{id} | Update an existing job,Employer (Owner)
-DELETE | /api/v1/jobs/{id} | Delete a job post | Employer (Owner)
+### Job Listings (Public & Protected)
 
-Job Applications (Protected)
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/jobs` | List all jobs (supports filters) | Public |
+| `GET` | `/api/v1/jobs/{id}` | Get specific job details | Public |
+| `POST` | `/api/v1/jobs` | Post a new job | Employer |
+| `PUT` | `/api/v1/jobs/{id}` | Update an existing job | Employer (Owner) |
+| `DELETE` | `/api/v1/jobs/{id}` | Delete a job post | Employer (Owner) |
 
-Method | Endpoint | Description | Access
-POST | /api/v1/jobs/{id}/apply | Apply for a job (Concurrent processing) | Seeker
-GET | /api/v1/applications | View all your submitted applications | Seeker
-GET | /api/v1/jobs/{id}/applicants | View list of people who applied | Employer
+<br/>
 
+### Job Applications (Protected)
+
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/jobs/{id}/apply` | Apply for a job (Concurrent processing) | Seeker |
+| `GET` | `/api/v1/applications` | View all your submitted applications | Seeker |
+| `GET` | `/api/v1/jobs/{id}/applicants` | View list of people who applied | Employer |
