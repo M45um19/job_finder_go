@@ -1,26 +1,25 @@
 package config
 
 import (
-	"log"
 	"os"
 
-	"github.com/joho/gotdotenv"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	port string
+	Port string
 	DBURL string
 	JWTSecret string
 }
 
 func Load() *Config {
 
-	_ := gotdotenv.Load()
+	_ = godotenv.Load()
 
 	cfg := &Config {
-		port: getEnv("PORT", "8080"),
+		Port: getEnv("PORT", "8080"),
 		DBURL: os.Getenv("DB_URL"),
-		JWTSecret: os.Getenv("JWT_SECRET")
+		JWTSecret: os.Getenv("JWT_SECRET"),
 	}
 
 	return cfg
