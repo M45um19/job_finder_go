@@ -5,8 +5,10 @@ import (
 
 	"jobfinder/internal/config"
 	"jobfinder/internal/database"
-
-	"github.com/go-chi/chi/v5"
+	"jobfinder/internal/handlers"
+	"jobfinder/internal/repository"
+	"jobfinder/internal/router"
+	"jobfinder/internal/services"
 )
 
 type Application struct {
@@ -14,16 +16,16 @@ type Application struct {
 }
 
 func New() (*Application, http.Handler) {
-	
+
 	cfg := config.Load()
 
-	_ = database.NewPostgresPool(cfg.DBURL)
+	db := database.NewPostgresPool(cfg.DBURL)
 
-	r := chi.NewRouter()
+	authRepo := repository.NewUserRepository(db)
+	authService := services.NewAuthService(authRepo, cfg.JWTSecret)
+	authHandler := handlers.NewAuthHandler(authService)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Api is RUNNING!"))
-	})
+	r := router.NewRouter(authHandler)
 
 	return &Application{Config: cfg}, r
 }

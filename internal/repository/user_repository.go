@@ -26,7 +26,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 
 	user := &models.User{}
 
-	err := r.db.QueryRow(context.Background(), query, email).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
+	err := r.db.QueryRow(context.Background(), query, email).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Role, &user.CreatedAt)
 
 	return user, err
 }
