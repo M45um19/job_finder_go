@@ -28,7 +28,7 @@ func (a *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := a.service.Register(req.Name, req.Email, req.Password, req.Role)
+	user, err := a.service.Register(r.Context(), req.Name, req.Email, req.Password, req.Role)
 
 	if err != nil {
 		utils.Error(w, http.StatusBadRequest, err.Error())
@@ -50,7 +50,7 @@ func (a *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := a.service.Login(req.Email, req.Password)
+	token, err := a.service.Login(r.Context(), req.Email, req.Password)
 
 	if err != nil {
 		utils.Error(w, http.StatusBadRequest, err.Error())

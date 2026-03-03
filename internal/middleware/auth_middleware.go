@@ -54,3 +54,19 @@ func (a *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+func (a *AuthMiddleware) RequireRole(role string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			userRole := r.Context().Value(RoleKey)
+
+			if userRole != role {
+				utils.Error(w, http.StatusForbidden, "Wrong role")
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
