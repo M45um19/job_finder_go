@@ -19,13 +19,13 @@ func NewAuthService(repo *repository.UserRepository, secret string) *AuthService
 
 func (a *AuthService) Register(ctx context.Context, name, email, password, role string) (*models.User, error) {
 	if role != "employee" && role != "employer" {
-		return nil, errors.New("invalid role")
+		return nil, errors.New("Invalid role")
 	}
 
 	hash, err := utils.HashPassword(password)
 
 	if err != nil {
-		return nil, errors.New("password hash faild")
+		return nil, errors.New("Password hash faild")
 
 	}
 
@@ -51,13 +51,13 @@ func (a *AuthService) Login(ctx context.Context, email, password string) (string
 	user, err := a.repo.GetUserByEmail(ctx, email)
 
 	if err != nil {
-		return "", errors.New("user doesn't found")
+		return "", errors.New("User doesn't found")
 	}
 
 	err = utils.ComparePassword(user.Password, password)
 
 	if err != nil {
-		return "", errors.New("password not match")
+		return "", errors.New("Password not match")
 	}
 
 	token, err := utils.GenerateToken(user.Id, user.Role, a.jwtSecret)

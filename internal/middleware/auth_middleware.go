@@ -59,7 +59,7 @@ func (a *AuthMiddleware) RequireRole(role string) func(http.Handler) http.Handle
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			userRole := r.Context().Value(RoleKey)
+			userRole := r.Context().Value("RoleKey")
 
 			if userRole != role {
 				utils.Error(w, http.StatusForbidden, "Wrong role")
