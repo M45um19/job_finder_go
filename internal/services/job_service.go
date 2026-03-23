@@ -5,6 +5,7 @@ import (
 	"errors"
 	"jobfinder/internal/models"
 	"jobfinder/internal/repository"
+	"log"
 )
 
 type JobService struct {
@@ -28,6 +29,7 @@ func (j *JobService) CreateJob(ctx context.Context, title, description, company,
 	err := j.repo.CreateJob(ctx, &job)
 
 	if err != nil {
+		log.Printf("ERROR: failed to create job in database: %v", err)
 		return nil, errors.New("Job creation faild")
 	}
 

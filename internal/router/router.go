@@ -2,12 +2,16 @@ package router
 
 import (
 	"jobfinder/internal/handlers"
+	"jobfinder/internal/middleware"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(authHandler *handlers.AuthHandler) http.Handler {
+func NewRouter(authHandler *handlers.AuthHandler,
+	jobHandler *handlers.JobHandler,
+	authMiddlewre *middleware.AuthMiddleware,
+) http.Handler {
 
 	r := chi.NewRouter()
 
@@ -16,5 +20,13 @@ func NewRouter(authHandler *handlers.AuthHandler) http.Handler {
 		r.Post("/login", authHandler.Login)
 	})
 
+	r.Route("/api/v1/jobs", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddlewre.RequireAuth)
+			r.Use(authMiddlewre.RequireRole("employer"))
+
+			r.Post("/", jobHandler.CreateJob)
+		})
+	})
 	return r
 }

@@ -6,6 +6,7 @@ import (
 	"jobfinder/internal/config"
 	"jobfinder/internal/database"
 	"jobfinder/internal/handlers"
+	"jobfinder/internal/middleware"
 	"jobfinder/internal/repository"
 	"jobfinder/internal/router"
 	"jobfinder/internal/services"
@@ -25,7 +26,13 @@ func New() (*Application, http.Handler) {
 	authService := services.NewAuthService(authRepo, cfg.JWTSecret)
 	authHandler := handlers.NewAuthHandler(authService)
 
-	r := router.NewRouter(authHandler)
+	jobRepo := repository.NewJobRepository(db)
+	jobService := services.NewJobService(jobRepo)
+	jobHandler := handlers.NewJobHandler(jobService)
+
+	authMiddleware := middleware.NewAuthMiddleware(cfg.JWTSecret)
+
+	r := router.NewRouter(authHandler, jobHandler, authMiddleware)
 
 	return &Application{Config: cfg}, r
 }

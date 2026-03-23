@@ -44,12 +44,20 @@ func (a *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 		}
 		claims := token.Claims.(jwt.MapClaims)
 
-		userID := claims["user_id"].(int64)
+		var userID int64
+		if val, ok := claims["user_id"].(float64); ok {
+			userID = int64(val)
+		} else if val, ok := claims["user_id"].(int64); ok {
+			userID = val
+		} else {
+			utils.Error(w, http.StatusUnauthorized, "Invalid user_id in token")
+			return
+		}
 		role := claims["role"].(string)
 
 		ctx := context.WithValue(r.Context(), UserIdKey, userID)
 
-		ctx = context.WithValue(r.Context(), RoleKey, role)
+		ctx = context.WithValue(ctx, RoleKey, role)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -59,10 +67,10 @@ func (a *AuthMiddleware) RequireRole(role string) func(http.Handler) http.Handle
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			userRole := r.Context().Value("RoleKey")
+			userRole, ok := r.Context().Value(RoleKey).(string)
 
-			if userRole != role {
-				utils.Error(w, http.StatusForbidden, "Wrong role")
+			if !ok || userRole != role {
+				utils.Error(w, http.StatusForbidden, "Wrong role or unauthorized")
 				return
 			}
 

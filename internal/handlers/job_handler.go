@@ -2,22 +2,23 @@ package handlers
 
 import (
 	"encoding/json"
+	"jobfinder/internal/middleware"
 	"jobfinder/internal/models"
 	"jobfinder/internal/services"
 	"jobfinder/internal/utils"
 	"net/http"
 )
 
-type Jobhandler struct {
+type JobHandler struct {
 	service *services.JobService
 }
 
-func NewJobHandler(service *services.JobService) *Jobhandler {
-	return &Jobhandler{service: service}
+func NewJobHandler(service *services.JobService) *JobHandler {
+	return &JobHandler{service: service}
 }
 
-func (j *Jobhandler) CreateJob(w http.ResponseWriter, r http.Request) {
-	userId := r.Context().Value("UserIdKey").(int64)
+func (j *JobHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(middleware.UserIdKey).(int64)
 
 	req := models.Job{}
 
