@@ -21,6 +21,10 @@ func NewRouter(authHandler *handlers.AuthHandler,
 	})
 
 	r.Route("/api/v1/jobs", func(r chi.Router) {
+
+		r.Get("/", jobHandler.GetAllJobs)
+		r.Get("/{id}", jobHandler.GetSingleJobDetails)
+
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddlewre.RequireAuth)
 			r.Use(authMiddlewre.RequireRole("employer"))

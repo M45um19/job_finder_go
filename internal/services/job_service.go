@@ -36,3 +36,13 @@ func (j *JobService) CreateJob(ctx context.Context, title, description, company,
 	return &job, nil
 
 }
+
+func (j *JobService) GetAllJobs(ctx context.Context) ([]models.Job, error) {
+
+	return j.repo.GetAllJobs(ctx)
+
+}
+
+func (j *JobService) GetSingleJobDetails(ctx context.Context, jobId int64) (*models.Job, error) {
+	return j.repo.GetSingleJobDetails(ctx, jobId)
+}

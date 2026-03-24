@@ -7,6 +7,9 @@ import (
 	"jobfinder/internal/services"
 	"jobfinder/internal/utils"
 	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type JobHandler struct {
@@ -34,4 +37,29 @@ func (j *JobHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.JSON(w, http.StatusCreated, job)
+}
+
+func (j *JobHandler) GetAllJobs(w http.ResponseWriter, r *http.Request) {
+
+	jobs, err := j.service.GetAllJobs(r.Context())
+
+	if err != nil {
+		utils.Error(w, http.StatusBadRequest, err.Error())
+	}
+
+	utils.JSON(w, http.StatusOK, jobs)
+}
+
+func (j *JobHandler) GetSingleJobDetails(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+
+	jobId, _ := strconv.ParseInt(idParam, 10, 64)
+
+	job, err := j.service.GetSingleJobDetails(r.Context(), jobId)
+
+	if err != nil {
+		utils.Error(w, http.StatusBadRequest, err.Error())
+	}
+
+	utils.JSON(w, http.StatusOK, job)
 }
