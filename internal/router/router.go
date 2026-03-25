@@ -30,6 +30,8 @@ func NewRouter(authHandler *handlers.AuthHandler,
 			r.Use(authMiddlewre.RequireRole("employer"))
 
 			r.Post("/", jobHandler.CreateJob)
+
+			r.Put("/{id}", jobHandler.UpdateJob)
 		})
 	})
 	return r

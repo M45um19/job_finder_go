@@ -60,7 +60,7 @@ func (j *JobRepository) GetAllJobs(ctx context.Context) ([]models.Job, error) {
 func (j *JobRepository) GetSingleJobDetails(ctx context.Context, jobId int64) (*models.Job, error) {
 	var job models.Job
 
-	query := "SELECT id, title, description, company, location, created_at, updated_at FROM jobs WHERE id=$1"
+	query := "SELECT id, title, description, company, location, employerid, created_at, updated_at FROM jobs WHERE id=$1"
 
 	err := j.db.QueryRow(ctx, query, jobId).Scan(
 		&job.ID,
@@ -68,6 +68,7 @@ func (j *JobRepository) GetSingleJobDetails(ctx context.Context, jobId int64) (*
 		&job.Description,
 		&job.Company,
 		&job.Location,
+		&job.EmployerID,
 		&job.CreatedAt,
 		&job.UpdatedAt,
 	)
@@ -77,4 +78,18 @@ func (j *JobRepository) GetSingleJobDetails(ctx context.Context, jobId int64) (*
 	}
 
 	return &job, nil
+}
+
+func (j *JobRepository) UpdateJob(ctx context.Context, job *models.Job) error {
+	query := "UPDATE jobs SET title=$1, description=$2, company=$3, location=$4, updated_at=NOW() WHERE id=$5"
+
+	_, err := j.db.Exec(ctx, query,
+		job.Title,
+		job.Description,
+		job.Company,
+		job.Location,
+		job.ID,
+	)
+
+	return err
 }

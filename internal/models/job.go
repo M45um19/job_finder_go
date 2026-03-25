@@ -7,7 +7,7 @@ type Job struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Company     string    `json:"company"`
-	Location    string    `json:"localtion"`
+	Location    string    `json:"location"`
 	EmployerID  int64     `json:"employerid"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `jsonL"updatedAt"`

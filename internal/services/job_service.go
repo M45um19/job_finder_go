@@ -16,13 +16,13 @@ func NewJobService(repo *repository.JobRepository) *JobService {
 	return &JobService{repo: repo}
 }
 
-func (j *JobService) CreateJob(ctx context.Context, title, description, company, localtion string, employerId int64) (*models.Job, error) {
+func (j *JobService) CreateJob(ctx context.Context, title, description, company, location string, employerId int64) (*models.Job, error) {
 
 	job := models.Job{
 		Title:       title,
 		Description: description,
 		Company:     company,
-		Location:    localtion,
+		Location:    location,
 		EmployerID:  employerId,
 	}
 
@@ -45,4 +45,18 @@ func (j *JobService) GetAllJobs(ctx context.Context) ([]models.Job, error) {
 
 func (j *JobService) GetSingleJobDetails(ctx context.Context, jobId int64) (*models.Job, error) {
 	return j.repo.GetSingleJobDetails(ctx, jobId)
+}
+
+func (j *JobService) UpdateJob(ctx context.Context, job *models.Job, userId int64) error {
+	job, err := j.repo.GetSingleJobDetails(ctx, job.ID)
+
+	if err != nil {
+		return err
+	}
+
+	if job.EmployerID != userId {
+		return errors.New("You are not job owner")
+	}
+
+	return j.repo.UpdateJob(ctx, job)
 }
