@@ -48,15 +48,29 @@ func (j *JobService) GetSingleJobDetails(ctx context.Context, jobId int64) (*mod
 }
 
 func (j *JobService) UpdateJob(ctx context.Context, job *models.Job, userId int64) error {
-	job, err := j.repo.GetSingleJobDetails(ctx, job.ID)
+	existing, err := j.repo.GetSingleJobDetails(ctx, job.ID)
 
 	if err != nil {
 		return err
 	}
 
-	if job.EmployerID != userId {
+	if existing.EmployerID != userId {
 		return errors.New("You are not job owner")
 	}
 
 	return j.repo.UpdateJob(ctx, job)
+}
+
+func (j *JobService) DeleteJob(ctx context.Context, userId int64, jobId int64) error {
+	existing, err := j.repo.GetSingleJobDetails(ctx, jobId)
+
+	if err != nil {
+		return err
+	}
+
+	if existing.EmployerID != userId {
+		return errors.New("You are not job owner")
+	}
+
+	return j.repo.DeleteJob(ctx, jobId)
 }

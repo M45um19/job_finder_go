@@ -82,3 +82,21 @@ func (j *JobHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.JSON(w, http.StatusOK, job)
 }
+
+func (j *JobHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(middleware.UserIdKey).(int64)
+
+	idParam := chi.URLParam(r, "id")
+
+	jobId, _ := strconv.ParseInt(idParam, 10, 64)
+
+	err := j.service.DeleteJob(r.Context(), userId, jobId)
+
+	if err != nil {
+		utils.Error(w, http.StatusBadRequest, err.Error())
+	}
+
+	utils.JSON(w, http.StatusOK, map[string]string{
+		"message": "Job Deleted Successfully",
+	})
+}

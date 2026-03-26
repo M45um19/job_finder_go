@@ -93,3 +93,11 @@ func (j *JobRepository) UpdateJob(ctx context.Context, job *models.Job) error {
 
 	return err
 }
+
+func (j *JobRepository) DeleteJob(ctx context.Context, jobId int64) error {
+	query := "DELETE FROM jobs WHERE id=$1"
+
+	_, err := j.db.Exec(ctx, query, jobId)
+
+	return err
+}
