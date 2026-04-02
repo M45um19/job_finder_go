@@ -10,6 +10,7 @@ import (
 
 func NewRouter(authHandler *handlers.AuthHandler,
 	jobHandler *handlers.JobHandler,
+	applicationHandler *handlers.ApplicationHandler,
 	authMiddlewre *middleware.AuthMiddleware,
 ) http.Handler {
 
@@ -32,6 +33,13 @@ func NewRouter(authHandler *handlers.AuthHandler,
 			r.Post("/", jobHandler.CreateJob)
 			r.Put("/{id}", jobHandler.UpdateJob)
 			r.Delete("/{id}", jobHandler.DeleteJob)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddlewre.RequireAuth)
+			r.Use(authMiddlewre.RequireRole("employee"))
+
+			r.Post("/{id}/apply", applicationHandler.CreateApplication)
 		})
 	})
 	return r

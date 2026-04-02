@@ -30,9 +30,13 @@ func New() (*Application, http.Handler) {
 	jobService := services.NewJobService(jobRepo)
 	jobHandler := handlers.NewJobHandler(jobService)
 
+	applicationRepo := repository.NewApplicationRepository(db)
+	applicationService := services.NewApplicationService(applicationRepo)
+	applicationHandler := handlers.NewApplicationHandler(applicationService)
+
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWTSecret)
 
-	r := router.NewRouter(authHandler, jobHandler, authMiddleware)
+	r := router.NewRouter(authHandler, jobHandler, applicationHandler, authMiddleware)
 
 	return &Application{Config: cfg}, r
 }
