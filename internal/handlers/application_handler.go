@@ -34,3 +34,14 @@ func (a *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 
 	utils.JSON(w, http.StatusCreated, application)
 }
+
+func (a *ApplicationHandler) GetApplicationByEmployeeId(w http.ResponseWriter, r *http.Request) {
+	employeeId := r.Context().Value(middleware.UserIdKey).(int64)
+
+	applications, err := a.service.GetApplicationByEmployeeId(r.Context(), employeeId)
+	if err != nil {
+		utils.Error(w, http.StatusBadRequest, err.Error())
+	}
+
+	utils.JSON(w, http.StatusOK, applications)
+}

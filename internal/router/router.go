@@ -42,5 +42,14 @@ func NewRouter(authHandler *handlers.AuthHandler,
 			r.Post("/{id}/apply", applicationHandler.CreateApplication)
 		})
 	})
+
+	r.Route("/api/v1/applications", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddlewre.RequireAuth)
+			r.Use(authMiddlewre.RequireRole("employee"))
+
+			r.Get("/", applicationHandler.GetApplicationByEmployeeId)
+		})
+	})
 	return r
 }
