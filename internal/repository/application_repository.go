@@ -49,3 +49,34 @@ func (a *ApplicationRepository) GetApplicationByEmployeeId(ctx context.Context, 
 	}
 	return applications, nil
 }
+
+func (a *ApplicationRepository) GetApplicationByJobId(ctx context.Context, jobId int64) ([]models.Application, error) {
+	query := "SELECT id, applicantUserId, jobId, created_at FROM applications WHERE jobId=$1"
+
+	rows, err := a.db.Query(ctx, query, jobId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	var applications []models.Application
+	for rows.Next() {
+		var application models.Application
+
+		err := rows.Scan(
+			&application.ID,
+			&application.ApplicantUserId,
+			&application.JobId,
+			&application.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		applications = append(applications, application)
+	}
+
+	return applications, nil
+}

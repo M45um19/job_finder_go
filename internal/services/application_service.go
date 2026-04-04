@@ -32,3 +32,7 @@ func (a *ApplicationService) CreateApplication(ctx context.Context, applicantUse
 func (a *ApplicationService) GetApplicationByEmployeeId(ctx context.Context, employeeId int64) ([]models.Application, error) {
 	return a.repo.GetApplicationByEmployeeId(ctx, employeeId)
 }
+
+func (a *ApplicationService) GetApplicationByJobId(ctx context.Context, jobId int64) ([]models.Application, error) {
+	return a.repo.GetApplicationByJobId(ctx, jobId)
+}

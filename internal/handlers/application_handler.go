@@ -45,3 +45,17 @@ func (a *ApplicationHandler) GetApplicationByEmployeeId(w http.ResponseWriter, r
 
 	utils.JSON(w, http.StatusOK, applications)
 }
+
+func (a *ApplicationHandler) GetApplicationByJobId(w http.ResponseWriter, r *http.Request) {
+	jobIdParam := chi.URLParam(r, "id")
+
+	jobId, _ := strconv.ParseInt(jobIdParam, 10, 64)
+
+	applications, err := a.service.GetApplicationByJobId(r.Context(), jobId)
+
+	if err != nil {
+		utils.Error(w, http.StatusBadRequest, err.Error())
+	}
+
+	utils.JSON(w, http.StatusOK, applications)
+}

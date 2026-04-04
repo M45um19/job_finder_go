@@ -33,6 +33,8 @@ func NewRouter(authHandler *handlers.AuthHandler,
 			r.Post("/", jobHandler.CreateJob)
 			r.Put("/{id}", jobHandler.UpdateJob)
 			r.Delete("/{id}", jobHandler.DeleteJob)
+
+			r.Get("/{id}/applications", applicationHandler.GetApplicationByJobId)
 		})
 
 		r.Group(func(r chi.Router) {
