@@ -25,24 +25,28 @@ Environment Management: joho/godotenv
 Project Structure:
 
 ```text
-jobstream-api/
-├── cmd/
-│   └── api/                # Application entry point (main.go)
-├── internal/
-│   ├── app/                # Application wire-up (Dependency Injection)
-│   ├── config/             # Environment & Configuration loading
-│   ├── database/           # DB Connection (pgxpool) setup
-│   ├── handlers/           # HTTP Request/Response handling
-│   ├── services/           # Business Logic layer
-│   ├── repository/         # Database interaction (SQL queries)
-│   ├── models/             # Data Entities & Structs
-│   ├── middleware/         # Auth, Logging & Role Guards
-│   └── router/             # Chi Route definitions
-├── migrations/             # SQL schema migrations
-├── pkg/                    # Shared helper packages (Logger, etc.)
-├── .env.example            # Example environment variables
-├── go.mod                  # Go module definition
-└── go.sum                  # Dependency checksums
+jobfinder/
+├── api/                 # OpenAPI/Swagger specs, JSON schemas, or Protobuf files
+├── cmd/                 # Main applications for this project
+│   └── api/
+│       └── main.go      # Application entry point, bootstrap & route merging
+├── configs/             # Configuration templates/files (fallback to .env)
+├── deployments/         # Dockerfiles, Kubernetes manifests, or Terraform scripts
+│   └── Dockerfile       # Multi-stage container run file
+├── docker-compose.yml   # Multi-container orchestrator configuration
+├── internal/            # Private application code
+│   ├── auth/            # Auth Domain (handlers, services, repositories, models, routes)
+│   ├── job/             # Job Domain (handlers, services, repositories, models, routes)
+│   ├── application/     # Application Domain (handlers, services, repositories, models, routes)
+│   └── platform/        # Shared infrastructure code
+│       ├── config/      # Configuration loaders
+│       ├── database/    # SQL/Postgres driver initialization
+│       └── utils/       # Shared response utilities & structured errors
+├── migrations/          # SQL database migration files
+├── pkg/                 # Public library code
+├── go.mod               # Go module file
+├── go.sum               # Dependencies check file
+└── Makefile             # Automation scripts (build, run, test, clean)
 ``` 
 
 Database Design: 
@@ -53,12 +57,16 @@ Applications: Links Seekers to Jobs with a unique constraint to prevent duplicat
 
 API Endpoints:
 
-### Authentication (Public)
+### Authentication & Profile
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/v1/auth/register` | Create a new account (Seeker/Employer) |
-| `POST` | `/api/v1/auth/login` | Login and receive a JWT Token |
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register` | Create account (Returns access & refresh token) | Public |
+| `POST` | `/api/v1/auth/login` | Login (Returns access & refresh token) | Public |
+| `POST` | `/api/v1/auth/refresh` | Renew access token via refresh token | Public |
+| `GET` | `/api/v1/auth/profile/{id}`| Fetch a user profile (excludes password/refresh token) | Public |
+| `PUT` | `/api/v1/auth/profile` | Update profile (name, address, experience, company info) | Authenticated |
+| `PUT` | `/api/v1/auth/profile/photo` | Upload/Update profile picture (multipart/form-data) | Authenticated |
 
 <br/>
 
@@ -66,7 +74,7 @@ API Endpoints:
 
 | Method | Endpoint | Description | Access |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/jobs` | List all jobs (supports filters) | Public |
+| `GET` | `/api/v1/jobs` | List all jobs (supports `?search=keyword` on title and description) | Public |
 | `GET` | `/api/v1/jobs/{id}` | Get specific job details | Public |
 | `POST` | `/api/v1/jobs` | Post a new job | Employer |
 | `PUT` | `/api/v1/jobs/{id}` | Update an existing job | Employer (Owner) |
