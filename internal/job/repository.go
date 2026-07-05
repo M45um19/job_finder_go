@@ -1,8 +1,7 @@
-package repository
+package job
 
 import (
 	"context"
-	"jobfinder/internal/models"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -15,29 +14,30 @@ func NewJobRepository(db *pgxpool.Pool) *JobRepository {
 	return &JobRepository{db: db}
 }
 
-func (j *JobRepository) CreateJob(ctx context.Context, job *models.Job) error {
-	query := "INSERT INTO jobs (title, description, company, location, employerid) VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at"
+func (j *JobRepository) CreateJob(ctx context.Context, job *Job) error {
+	query := "INSERT INTO jobs (id, title, description, company, location, employerid) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at"
 
-	return j.db.QueryRow(ctx, query, job.Title, job.Description, job.Company, job.Location, job.EmployerID).Scan(&job.ID, &job.CreatedAt)
-
+	return j.db.QueryRow(ctx, query, job.ID, job.Title, job.Description, job.Company, job.Location, job.EmployerID).Scan(&job.CreatedAt)
 }
 
-func (j *JobRepository) GetAllJobs(ctx context.Context) ([]models.Job, error) {
+func (j *JobRepository) GetAllJobs(ctx context.Context, search string) ([]Job, error) {
 	query := "SELECT id, title, description, company, location, created_at, updated_at FROM jobs"
+	var args []interface{}
 
-	rows, err := j.db.Query(ctx, query)
+	if search != "" {
+		query += " WHERE title ILIKE $1 OR description ILIKE $1"
+		args = append(args, "%"+search+"%")
+	}
 
+	rows, err := j.db.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
-	var jobs []models.Job
-
+	var jobs []Job
 	for rows.Next() {
-		var job models.Job
-
+		var job Job
 		err := rows.Scan(
 			&job.ID,
 			&job.Title,
@@ -47,19 +47,16 @@ func (j *JobRepository) GetAllJobs(ctx context.Context) ([]models.Job, error) {
 			&job.CreatedAt,
 			&job.UpdatedAt,
 		)
-
 		if err != nil {
 			return nil, err
 		}
-
 		jobs = append(jobs, job)
 	}
 	return jobs, nil
 }
 
-func (j *JobRepository) GetSingleJobDetails(ctx context.Context, jobId int64) (*models.Job, error) {
-	var job models.Job
-
+func (j *JobRepository) GetSingleJobDetails(ctx context.Context, jobId int64) (*Job, error) {
+	var job Job
 	query := "SELECT id, title, description, company, location, employerid, created_at, updated_at FROM jobs WHERE id=$1"
 
 	err := j.db.QueryRow(ctx, query, jobId).Scan(
@@ -72,7 +69,6 @@ func (j *JobRepository) GetSingleJobDetails(ctx context.Context, jobId int64) (*
 		&job.CreatedAt,
 		&job.UpdatedAt,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +76,7 @@ func (j *JobRepository) GetSingleJobDetails(ctx context.Context, jobId int64) (*
 	return &job, nil
 }
 
-func (j *JobRepository) UpdateJob(ctx context.Context, job *models.Job) error {
+func (j *JobRepository) UpdateJob(ctx context.Context, job *Job) error {
 	query := "UPDATE jobs SET title=$1, description=$2, company=$3, location=$4, updated_at=NOW() WHERE id=$5"
 
 	_, err := j.db.Exec(ctx, query,
@@ -90,7 +86,6 @@ func (j *JobRepository) UpdateJob(ctx context.Context, job *models.Job) error {
 		job.Location,
 		job.ID,
 	)
-
 	return err
 }
 
@@ -98,6 +93,5 @@ func (j *JobRepository) DeleteJob(ctx context.Context, jobId int64) error {
 	query := "DELETE FROM jobs WHERE id=$1"
 
 	_, err := j.db.Exec(ctx, query, jobId)
-
 	return err
 }

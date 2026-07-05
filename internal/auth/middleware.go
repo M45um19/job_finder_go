@@ -1,12 +1,13 @@
-package middleware
+package auth
 
 import (
 	"context"
-	"jobfinder/internal/utils"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"jobfinder/internal/platform/utils"
 )
 
 type contextKey string
@@ -28,7 +29,7 @@ func (a *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			utils.Error(w, http.StatusUnauthorized, "AuthoAuthorization header missing")
+			utils.Error(w, http.StatusUnauthorized, "Authorization header missing")
 			return
 		}
 
@@ -49,6 +50,13 @@ func (a *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 			userID = int64(val)
 		} else if val, ok := claims["user_id"].(int64); ok {
 			userID = val
+		} else if valStr, ok := claims["user_id"].(string); ok {
+			var err error
+			userID, err = strconv.ParseInt(valStr, 10, 64)
+			if err != nil {
+				utils.Error(w, http.StatusUnauthorized, "Invalid user_id format in token")
+				return
+			}
 		} else {
 			utils.Error(w, http.StatusUnauthorized, "Invalid user_id in token")
 			return
@@ -56,7 +64,6 @@ func (a *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 		role := claims["role"].(string)
 
 		ctx := context.WithValue(r.Context(), UserIdKey, userID)
-
 		ctx = context.WithValue(ctx, RoleKey, role)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -66,9 +73,7 @@ func (a *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 func (a *AuthMiddleware) RequireRole(role string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 			userRole, ok := r.Context().Value(RoleKey).(string)
-
 			if !ok || userRole != role {
 				utils.Error(w, http.StatusForbidden, "Wrong role or unauthorized")
 				return
