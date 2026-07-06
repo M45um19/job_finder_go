@@ -13,6 +13,7 @@ type Config struct {
 	CloudinaryCloudName string
 	CloudinaryAPIKey    string
 	CloudinaryAPISecret string
+	FrontendAllow       string
 }
 
 func Load() *Config {
@@ -29,6 +30,7 @@ func Load() *Config {
 		CloudinaryCloudName: os.Getenv("CLOUDINARY_CLOUD_NAME"),
 		CloudinaryAPIKey:    os.Getenv("CLOUDINARY_API_KEY"),
 		CloudinaryAPISecret: os.Getenv("CLOUDINARY_API_SECRET"),
+		FrontendAllow:       getEnv("FRONTEND_ALLOW", "http://localhost:5173"),
 	}
 
 	return cfg

@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     company TEXT NOT NULL,
     location VARCHAR(100) NOT NULL,
     employerId BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    required_skills TEXT,
+    salary TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

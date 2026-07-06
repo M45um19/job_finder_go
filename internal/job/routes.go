@@ -15,6 +15,7 @@ func (j *JobHandler) RegisterRoutes(r chi.Router, authMiddleware *auth.AuthMiddl
 		r.Use(authMiddleware.RequireRole("employer"))
 
 		r.Post("/", j.CreateJob)
+		r.Get("/employer", j.GetEmployerJobs)
 		r.Put("/{id}", j.UpdateJob)
 		r.Delete("/{id}", j.DeleteJob)
 
