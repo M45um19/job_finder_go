@@ -74,10 +74,11 @@ API Endpoints:
 
 | Method | Endpoint | Description | Access |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/jobs` | List all jobs (supports `?search=keyword` on title and description) | Public |
+| `GET` | `/api/v1/jobs` | List all jobs (paginated, supports `?page=X&limit=Y` up to 20, and `?search=keyword` on title, description, required skills) | Public |
 | `GET` | `/api/v1/jobs/{id}` | Get specific job details | Public |
-| `POST` | `/api/v1/jobs` | Post a new job | Employer |
-| `PUT` | `/api/v1/jobs/{id}` | Update an existing job | Employer (Owner) |
+| `GET` | `/api/v1/jobs/employer` | List all jobs posted by the authenticated employer (paginated, supports `?page=X&limit=Y` up to 20) | Employer |
+| `POST` | `/api/v1/jobs` | Post a new job (includes `required_skills` and `salary`) | Employer |
+| `PUT` | `/api/v1/jobs/{id}` | Update an existing job (includes `required_skills` and `salary`) | Employer (Owner) |
 | `DELETE` | `/api/v1/jobs/{id}` | Delete a job post | Employer (Owner) |
 
 <br/>
@@ -88,4 +89,4 @@ API Endpoints:
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/jobs/{id}/apply` | Apply for a job (Concurrent processing) | Seeker |
 | `GET` | `/api/v1/applications` | View all your submitted applications | Seeker |
-| `GET` | `/api/v1/jobs/{id}/applicants` | View list of people who applied | Employer |
+| `GET` | `/api/v1/jobs/{id}/applications` | View list of applications submitted for this job | Employer |

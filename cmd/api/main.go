@@ -12,6 +12,7 @@ import (
 	"jobfinder/internal/platform/config"
 	"jobfinder/internal/platform/database"
 	"jobfinder/internal/platform/idgen"
+	"jobfinder/internal/platform/utils"
 )
 
 func main() {
@@ -56,6 +57,9 @@ func main() {
 
 	// 7. Build the Router
 	r := chi.NewRouter()
+
+	// Enable CORS middleware
+	r.Use(utils.CORSMiddleware(cfg.FrontendAllow))
 
 	r.Route("/api/v1/auth", func(r chi.Router) {
 		authHandler.RegisterRoutes(r, authMiddleware)

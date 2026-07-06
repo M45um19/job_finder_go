@@ -25,24 +25,65 @@ func (j *JobHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&req)
 
 	req.EmployerID = userId
-	job, err := j.service.CreateJob(r.Context(), req.Title, req.Description, req.Company, req.Location, req.EmployerID)
+	job, err := j.service.CreateJob(r.Context(), req.Title, req.Description, req.Company, req.Location, req.RequiredSkills, req.Salary, req.EmployerID)
 	if err != nil {
 		utils.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	utils.JSON(w, http.StatusCreated, job)
+	utils.JSON(w, http.StatusCreated, "Job created successfully", job)
 }
 
 func (j *JobHandler) GetAllJobs(w http.ResponseWriter, r *http.Request) {
 	search := r.URL.Query().Get("search")
-	jobs, err := j.service.GetAllJobs(r.Context(), search)
+
+	pageStr := r.URL.Query().Get("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
+	}
+
+	limitStr := r.URL.Query().Get("limit")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	} else if limit > 20 {
+		limit = 20
+	}
+
+	jobs, totalItems, err := j.service.GetAllJobs(r.Context(), search, page, limit)
 	if err != nil {
 		utils.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, jobs)
+	utils.PaginatedJSON(w, http.StatusOK, "Jobs retrieved successfully", jobs, totalItems, page, limit)
+}
+
+func (j *JobHandler) GetEmployerJobs(w http.ResponseWriter, r *http.Request) {
+	employerID := r.Context().Value(auth.UserIdKey).(int64)
+
+	pageStr := r.URL.Query().Get("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
+	}
+
+	limitStr := r.URL.Query().Get("limit")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	} else if limit > 20 {
+		limit = 20
+	}
+
+	jobs, totalItems, err := j.service.GetJobsByEmployerID(r.Context(), employerID, page, limit)
+	if err != nil {
+		utils.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.PaginatedJSON(w, http.StatusOK, "Employer jobs retrieved successfully", jobs, totalItems, page, limit)
 }
 
 func (j *JobHandler) GetSingleJobDetails(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +96,7 @@ func (j *JobHandler) GetSingleJobDetails(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, job)
+	utils.JSON(w, http.StatusOK, "Job details retrieved successfully", job)
 }
 
 func (j *JobHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +114,7 @@ func (j *JobHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	utils.JSON(w, http.StatusOK, job)
+	utils.JSON(w, http.StatusOK, "Job updated successfully", job)
 }
 
 func (j *JobHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +129,5 @@ func (j *JobHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, map[string]string{
-		"message": "Job Deleted Successfully",
-	})
+	utils.JSON(w, http.StatusOK, "Job deleted successfully", nil)
 }
