@@ -16,14 +16,16 @@ func NewJobService(repo *JobRepository) *JobService {
 	return &JobService{repo: repo}
 }
 
-func (j *JobService) CreateJob(ctx context.Context, title, description, company, location string, employerId int64) (*Job, error) {
+func (j *JobService) CreateJob(ctx context.Context, title, description, company, location, requiredSkills, salary string, employerId int64) (*Job, error) {
 	job := Job{
-		ID:          idgen.NextID(),
-		Title:       title,
-		Description: description,
-		Company:     company,
-		Location:    location,
-		EmployerID:  employerId,
+		ID:             idgen.NextID(),
+		Title:          title,
+		Description:    description,
+		Company:        company,
+		Location:       location,
+		RequiredSkills: requiredSkills,
+		Salary:         salary,
+		EmployerID:     employerId,
 	}
 
 	err := j.repo.CreateJob(ctx, &job)
@@ -35,8 +37,12 @@ func (j *JobService) CreateJob(ctx context.Context, title, description, company,
 	return &job, nil
 }
 
-func (j *JobService) GetAllJobs(ctx context.Context, search string) ([]Job, error) {
-	return j.repo.GetAllJobs(ctx, search)
+func (j *JobService) GetAllJobs(ctx context.Context, search string, page, limit int) ([]Job, int64, error) {
+	return j.repo.GetAllJobs(ctx, search, page, limit)
+}
+
+func (j *JobService) GetJobsByEmployerID(ctx context.Context, employerID int64, page, limit int) ([]Job, int64, error) {
+	return j.repo.GetJobsByEmployerID(ctx, employerID, page, limit)
 }
 
 func (j *JobService) GetSingleJobDetails(ctx context.Context, jobId int64) (*Job, error) {

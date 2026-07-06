@@ -36,7 +36,7 @@ func (a *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusCreated, map[string]string{
+	utils.JSON(w, http.StatusCreated, "User registered successfully", map[string]string{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
@@ -59,7 +59,7 @@ func (a *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, map[string]string{
+	utils.JSON(w, http.StatusOK, "Login successfully", map[string]string{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
@@ -81,7 +81,7 @@ func (a *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, map[string]string{
+	utils.JSON(w, http.StatusOK, "Token refreshed successfully", map[string]string{
 		"access_token": newAccessToken,
 	})
 }
@@ -100,7 +100,7 @@ func (a *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, user)
+	utils.JSON(w, http.StatusOK, "User profile retrieved successfully", user)
 }
 
 func (a *AuthHandler) UpdateProfilePhoto(w http.ResponseWriter, r *http.Request) {
@@ -125,7 +125,7 @@ func (a *AuthHandler) UpdateProfilePhoto(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, map[string]string{"photo_url": photoURL})
+	utils.JSON(w, http.StatusOK, "Profile photo updated successfully", map[string]string{"photo_url": photoURL})
 }
 
 func (a *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
@@ -163,5 +163,5 @@ func (a *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, map[string]string{"message": "Profile updated successfully"})
+	utils.JSON(w, http.StatusOK, "Profile updated successfully", nil)
 }

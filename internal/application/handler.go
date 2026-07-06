@@ -29,7 +29,7 @@ func (a *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	utils.JSON(w, http.StatusCreated, application)
+	utils.JSON(w, http.StatusCreated, "Job application submitted successfully", application)
 }
 
 func (a *ApplicationHandler) GetApplicationByEmployeeId(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +41,7 @@ func (a *ApplicationHandler) GetApplicationByEmployeeId(w http.ResponseWriter, r
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, applications)
+	utils.JSON(w, http.StatusOK, "Seeker applications retrieved successfully", applications)
 }
 
 func (a *ApplicationHandler) GetApplicationByJobId(w http.ResponseWriter, r *http.Request) {
@@ -54,5 +54,5 @@ func (a *ApplicationHandler) GetApplicationByJobId(w http.ResponseWriter, r *htt
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, applications)
+	utils.JSON(w, http.StatusOK, "Job applications retrieved successfully", applications)
 }

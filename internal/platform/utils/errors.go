@@ -28,7 +28,7 @@ func NewError(statusCode int, message string) *AppError {
 func WriteError(w http.ResponseWriter, err error) {
 	var appErr *AppError
 	if errors.As(err, &appErr) {
-		JSON(w, appErr.StatusCode, appErr)
+		JSON(w, appErr.StatusCode, appErr.Message, nil)
 		return
 	}
 	// Fallback for default errors
